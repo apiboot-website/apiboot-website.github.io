@@ -1,0 +1,8 @@
+{
+  "label": "组件库",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "ApiBoot所提供的开箱即用的组件库"
+  }
+}
