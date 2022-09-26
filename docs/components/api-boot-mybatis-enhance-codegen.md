@@ -18,15 +18,7 @@ sidebar_position: 6
     <plugin>
       <groupId>org.minbox.framework</groupId>
       <artifactId>api-boot-mybatis-enhance-maven-codegen</artifactId>
-      <version>2.1.5.RELEASE</version>
-      <dependencies>
-        <!--数据驱动依赖-->
-        <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.47</version>
-        </dependency>
-      </dependencies>
+      <version>2.3.8</version>
       <executions>
         <execution>
           <goals>
@@ -36,12 +28,33 @@ sidebar_position: 6
       </executions>
       <configuration>
         <execute>true</execute>
-        <dbName>knowledge</dbName>
+        <dbName>xxx</dbName>
         <dbUrl>jdbc:mysql://localhost:3306</dbUrl>
         <dbUserName>root</dbUserName>
         <dbPassword>123456</dbPassword>
         <packageName>org.minbox.framework.api.boot.sample</packageName>
+        <!--Lombok Configs-->
+        <appendLombokAccessorsChain>true</appendLombokAccessorsChain>
+        <appendLombokData>true</appendLombokData>
+        <!--ssh代理配置-->
+        <enableSshProxy>true</enableSshProxy>
+        <!--会将192.168.1.111:3306端口代理绑定到127.0.0.1:3306-->
+        <sshProxySetting>
+          <serverIp>192.168.1.111</serverIp>
+          <username>developer</username>
+        </sshProxySetting>
+        <typeMappings>
+          <typeMapping>
+            <jdbcType>timestamp</jdbcType>
+            <javaType>LocalDateTime</javaType>
+          </typeMapping>
+          ...
+        </typeMappings>
         <tableNamePattern>kl%</tableNamePattern>
+        <ignoreColumnPrefix>false</ignoreColumnPrefix>
+        <tables>
+        	<table>user</table>
+        </tables>
       </configuration>
     </plugin>
     //...
@@ -49,23 +62,33 @@ sidebar_position: 6
 </build>
 ```
 
-`Codegen`在运行时，需要`数据库驱动`的支持，我本机使用的是`MySQL`，因为在上面我添加了相关的依赖。
-
-> 注意：`Codegen`内部使用`Code-Builder`的表信息获取的模块，MySQL的驱动默认只能使用5.x版本，不可以使用8.x。
-
 ## 相关配置参数
 
-| 参数名             | 默认值 | 描述                                                       |
-| ------------------ | ------ | ---------------------------------------------------------- |
-| `execute`          | false  | `Codegen`是否执行                                          |
-| `dbName`           |        | 数据库名称                                                 |
-| `dbUrl`            |        | 数据库连接路径（排除数据库名称）                           |
-| `dbUserName`       |        | 连接数据库用户名                                           |
-| `dbPassword`       |        | 连接数据库密码                                             |
-| `packageName`      |        | 生成后实体类的package                                      |
-| `tableNamePattern` | %      | 表名过滤表达式，向like语法一样使用，默认匹配数据库内全部表 |
+| 参数名                               | 默认值          | 描述                                                         |
+| ------------------------------------ | --------------- | ------------------------------------------------------------ |
+| `execute`                            | false           | `Codegen`是否执行                                            |
+| `dbName`                             | -               | 数据库名称                                                   |
+| `dbUrl`                              | -               | 数据库连接路径（排除数据库名称）                             |
+| `dbUserName`                         | -               | 连接数据库用户名                                             |
+| `dbPassword`                         | -               | 连接数据库密码                                               |
+| `packageName`                        | -               | 生成后实体类的package                                        |
+| appendLombokAccessorsChain           | false           | 生成的实体类是否添加`@Accessors(chain = true)`注解           |
+| appendLombokData                     | false           | 生成的实体类是否添加`@Data`注解                              |
+| enableSshProxy                       | false           | 是否启用ssh代理方式连接数据库                                |
+| sshProxySetting.serverIp             | -               | ssh代理的目标IP地址                                          |
+| sshProxySetting.forwardTargetPort    | 3306            | ssh代理的目标端口号，默认为3306                              |
+| sshProxySetting.username             | -               | 登录ssh代理服务器的用户名                                    |
+| sshProxySetting.authenticationMethod | SSH_PRIVATE_KEY | ssh代理授权方式，默认使用公钥秘钥方式。<br />SSH_PRIVATE_KEY：公钥秘钥方式<br />USERNAME_PASSWORD：用户名密码方式 |
+| sshProxySetting.sshPort              | 22              | 登录ssh代理服务器的open-ssh端口号                            |
+| sshProxySetting.keyType              | rsa             | ssh公钥秘钥类型                                              |
+| sshProxySetting.localPort            | 3306            | 代理到本地的端口号，默认为3306                               |
+| `tableNamePattern`                   | %               | 表名过滤表达式，向like语法一样使用，默认匹配数据库内全部表   |
 
-> 在上面配置中，排除有默认值的配置，其他都必须进行声明配置。
+:::tip
+
+代码生成连接数据的`sshProxy`内部其实使用了`ApiBoot SshAgent`，更多的使用方式可以查看[SSH安全通道端口代理转发组件](/docs/components/api-boot-ssh-agent)
+
+:::
 
 ## 执行生成
 
@@ -77,9 +100,24 @@ sidebar_position: 6
 
 编译过程中，控制台会进行输出自动生成表的日志信息，如下所示：
 
-```sh
+```bash title="控制台日志"
 ......
-[INFO] Execution table: 【kl_article_info】 - 文章信息表 entity creation.
+[INFO] <<< api-boot-mybatis-enhance-maven-codegen:2.3.9-SNAPSHOT:generator (default) < compile @ simulation-common <<<
+[INFO] 
+[INFO] 
+# 开启ssh代理通道
+[INFO] --- api-boot-mybatis-enhance-maven-codegen:2.3.9-SNAPSHOT:generator (default) @ simulation-common ---
+[INFO] Connection to the remote server [192.168.1.111] is successful.
+[INFO] Port forwarding binding is completed, local port : 3306, forward IP: 127.0.0.1, forward port : 3306
+# 输出本次将要参与生成的表名列表
+[INFO] The entity class corresponding to the 1 tables will be generated，and the table name list: ["simulation_job"]
+[INFO] 
+[INFO] ----------------< Start Generating simulation_job(模拟任务) >----------------
+[INFO] Get information is complete, time consuming 2119 ms.
+[INFO] Generated class [com/test/entity/SimulationJob.java] at 2022-09-26T15:19:08.579626
+[INFO] Generated class [com/test/entity/dsl/DSimulationJob.java] at 2022-09-26T15:19:08.585777
+# 关闭ssh代理通道
+[INFO] SSH Connection disconnected successfully
 ......
 ```
 
@@ -345,5 +383,4 @@ public KlArticleInfo selectById(String articleId) {
     .fetchOne();
 }
 ```
-
 
