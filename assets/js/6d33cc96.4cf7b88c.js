@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapiboot_minbox_org=self.webpackChunkapiboot_minbox_org||[]).push([[1386],{9263:a=>{a.exports=JSON.parse('{"label":"OAuth2","permalink":"/blog/tags/o-auth-2","allTagsPath":"/blog/tags","count":9}')}}]);

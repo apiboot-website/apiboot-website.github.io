@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapiboot_minbox_org=self.webpackChunkapiboot_minbox_org||[]).push([[1961],{9562:o=>{o.exports=JSON.parse('{"permalink":"/blog/tags/quartz","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);

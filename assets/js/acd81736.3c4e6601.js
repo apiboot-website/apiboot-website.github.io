@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapiboot_minbox_org=self.webpackChunkapiboot_minbox_org||[]).push([[2491],{6772:a=>{a.exports=JSON.parse('{"label":"Swagger2","permalink":"/blog/tags/swagger-2","allTagsPath":"/blog/tags","count":2}')}}]);

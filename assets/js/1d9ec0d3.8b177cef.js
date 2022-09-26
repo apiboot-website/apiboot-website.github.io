@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapiboot_minbox_org=self.webpackChunkapiboot_minbox_org||[]).push([[3605],{3286:a=>{a.exports=JSON.parse('{"label":"Spring","permalink":"/blog/tags/spring","allTagsPath":"/blog/tags","count":9}')}}]);

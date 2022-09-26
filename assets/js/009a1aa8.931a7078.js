@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapiboot_minbox_org=self.webpackChunkapiboot_minbox_org||[]).push([[5078],{6930:a=>{a.exports=JSON.parse('{"label":"Quartz","permalink":"/blog/tags/quartz","allTagsPath":"/blog/tags","count":3}')}}]);
