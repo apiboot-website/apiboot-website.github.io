@@ -18,9 +18,9 @@ sidebar_position: 15
 	<artifactId>api-boot-starter-swagger</artifactId>
 </dependency>
 ```
-
-> 注意：如果未添加`ApiBoot`版本依赖，请访问[版本依赖](/docs/out-box/version-rely)查看添加方式。
-
+:::tip
+如果未添加`ApiBoot`版本依赖，请访问[版本依赖](/docs/out-box/version-rely)查看添加方式。
+:::
 ## @EnableApiBootSwagger
 
 在添加依赖后需要通过`@EnableApiBootSwagger`注解进行开启`ApiBoot Swagger`相关的配置信息自动化构建，可以配置在XxxApplication入口类上，也可以是配置类，让`SpringBoot`加载到即可。
@@ -54,8 +54,9 @@ sidebar_position: 15
 
 启动添加`ApiBoot-Swagger`依赖的项目后，访问[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)页面查看`Swagger`所生成的全部文档，页面右侧可以看到**Authorize**，点击后打开配置`AccessToken`的界面，配置的`AccessToken`必须携带类型，如：`Bearer 0798e1c7-64f4-4a2f-aad1-8c616c5aa85b`。
 
->  注意：通过`ApiBoot Security Oauth`所获取的`AccessToken`类型都为`Bearer`。
-
+:::tip
+通过`ApiBoot Security Oauth`所获取的`AccessToken`类型都为`Bearer`。
+:::
 
 
 ## ApiBoot Swagger + @EnableWebMvc = 404？
