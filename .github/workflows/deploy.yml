@@ -31,4 +31,4 @@ jobs:
           publish_dir: ./build
           user_name: hengboy
           user_email: jnyuqy@gmail.com
-          cname: apiboot2.minbox.org
+          cname: apiboot.minbox.org
