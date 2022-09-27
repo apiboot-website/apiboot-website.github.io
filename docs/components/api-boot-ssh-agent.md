@@ -9,6 +9,8 @@ sidebar_position: 1
 
 那如果我们的本地项目需要连接到远程服务的数据库、Redis或者MongoDB时该怎么去做呢？
 
+GitHub源码：[minbox-projects/ssh-agent](https://github.com/minbox-projects/ssh-agent)
+
 ## 1. 使用场景
 
 **SSH-Agent就是来解决这类问题的，主要原理是在本地创建一个端口通过SSH方式登录后与远程服务器的端口号进行绑定，这样我们连接本地的端口号时就可以访问到远程服务器的服务了。**
