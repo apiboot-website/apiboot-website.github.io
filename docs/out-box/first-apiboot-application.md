@@ -33,6 +33,8 @@ sidebar_position: 2
 </dependencies>
 </dependencyManagement>
 ```
+Maven仓库最新版本：[![](https://img.shields.io/maven-central/v/org.minbox.framework/api-boot.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:org.minbox.framework)
+
 :::tip
 上面使用了`ApiBoot` v2.3.8版本，一旦添加了统一版本依赖后，使用`dependency`就需要再定义`<version>`标签了。
 :::
