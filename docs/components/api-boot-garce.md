@@ -91,7 +91,7 @@ curl -X GET http://localhost:8080/example\?name\=hengboy\&userId\=1
 
 
 
-## 4. GraceLogStorageProcessor
+## 4. 自定义存储操作日志
 
 操作日志根据`AOP`切面解析完成后会调用`org.minbox.framework.grace.processor.GraceLogStorageProcessor#storage`方法进行后续的数据存储处理，
 
