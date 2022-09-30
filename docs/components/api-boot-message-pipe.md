@@ -693,8 +693,173 @@ public MessagePipeConfigurationCustomizer customizerExceptionHandler(WriteToRabb
 
 ## 5. 快速上手
 
+下面我们基于`Docker`来构建演示环境，让大家快速上手这款轻量级的消息管道组件。
+
+### 5.1 准备环境
+
+#### 5.1.1 创建Docker网卡
+
+```bash
+# 创建名为example的网卡
+docker network create --driver bridge --subnet 172.99.0.0/24 --gateway 172.99.0.1 example
+```
+
+:::tip
+
+为了固定演示所需要的各个容器的`IP地址`，我们创建一个名为：`example`，固定网段的`Docker Network`。
+
+:::
+
+#### 5.1.2 创建Redis容器
+
+消息管道是基于`Redis`实现的，所以我们需要通过`Docker`创建`Redis`容器服务，并且固定了IP地址为`172.99.0.4`，如下所示：
+
+```bash
+docker run --name redis --network example --ip 172.99.0.4 -d -p 6379:6379 redis:latest
+```
+
+
+
+#### 5.1.3 创建MariaDB容器
+
+`Nacos Server`需要将数据存储到数据库，初始化建表语句请访问[nacos-v2.1.1-mysql.sql](https://github.com/minbox-projects/api-boot/blob/master/api-boot-samples/api-boot-sample-message-pipe-server/src/main/resources/nacos-v2.1.1-mysql.sql)。
+
+创建`Mariadb`容器服务，固定IP地址为`172.99.0.2`，如下所示：
+
+```bash
+docker run --name mariadb --network example --ip 172.99.0.2 \
+-e MYSQL_ROOT_PASSWORD=123456 \
+-p 3306:3306 -d mariadb:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+```
+
+
+
+#### 5.1.4 创建NacosServer容器
+
+`Nacos Server`服务需要连接`Mariadb`容器服务来维护配置以及其他数据内容，由于使用了同一个`Docker Network`在一个网段内，所以可以直接相互访问，如下所示：
+
+```bash
+docker run --name nacos-server --network example --ip 172.99.0.3 \
+-e TZ="Asia/Shanghai" \
+-e MODE=standalone \
+-e SPRING_DATASOURCE_PLATFORM=mysql \
+-e MYSQL_SERVICE_HOST=172.99.0.2 \
+-e MYSQL_SERVICE_PORT=3306 \
+-e MYSQL_SERVICE_DB_NAME=nacos \
+-e MYSQL_SERVICE_USER=root \
+-e MYSQL_SERVICE_PASSWORD=123456 \
+-e MYSQL_SERVICE_DB_PARAM="characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC" \
+-e MYSQL_DATABASE_NUM=1 \
+-p 8848:8848 -p 9848:9848 -d nacos/nacos-server:v2.1.1
+```
+
+
+
+### 5.2 示例代码
+
+示例代码目前已经上传到`ApiBoot`源码仓库，在`api-boot-samples`目录下，可以直接克隆仓库到本地并运行。
+
+#### 5.2.1 克隆ApiBoot源码
+
+```bash
+# 克隆master分支源码到本地
+git clone https://github.com/minbox-projects/api-boot.git ~/Downloads/api-boot
+```
+
+#### 5.2.2 启动客户端
+
+```bash title="terminal-01"
+# 进入ApiBoot MessagePipe客户端示例目录
+cd ~/Downloads/api-boot/api-boot-samples/api-boot-sample-message-pipe-client
+# 运行客户端
+mvn spring-boot:run
+```
+
+#### 5.2.3 启动服务端
+
+```bash title="terminal-02"
+# 进入ApiBoot MessagePipe服务端示例目录
+cd ~/Downloads/api-boot/api-boot-samples/api-boot-sample-message-pipe-server
+# 运行服务端
+mvn spring-boot:run
+```
+
+:::tip
+
+服务端启动成功后会定时向`test`消息管道写入消息。
+
+:::
+
+- 服务端示例代码：[api-boot-sample-message-pipe-server](https://github.com/minbox-projects/api-boot/tree/master/api-boot-samples/api-boot-sample-message-pipe-server)
+- 客户端示例代码：[api-boot-sample-message-pipe-client](https://github.com/minbox-projects/api-boot/tree/master/api-boot-samples/api-boot-sample-message-pipe-client)
+
+### 5.3 运行效果
+
+#### 5.3.1 客户端注册
+
+服务端启动后会从`Nacos`中拉取名为`message-pipe-client-services`的服务列表并执行注册，`message-pipe-client-services`服务实例列表如下图所示：
+
+
+![](/img/post/message-pipe-clients-nacos-service.png)
+
+:::tip
+
+每个客户端所支持处理的`消息管道`名称列表会通过服务实例元数据的方式进行注册，名称为：`bindingPipeNames`。
+
+:::
+
+注册日志如下所示：
+
+```bash
+# 客户端注册成功日志，绑定消息管道列表：test，IP地址：192.168.1.22，端口号：5201
+ClientServiceDiscovery   : Client, Pipe: test, IP: 192.168.1.22, Port: 5201, registration is successful.
+ClientServiceDiscovery   : Client collection, reset instance list is complete.
+```
+
+
+
+#### 5.3.2 客户端消费消息
+
+```bash
+# TestMessageProcessor消息处理器输出消息消费日志
+TestMessageProcessor : 具体管道：test，消费消息：9077099d-df63-4c6f-8f11-21c89c12e348，内容：11e01340-07e4-4169-b887-f87fae3b2d64，元数据：{"traceId":1664520095571}
+```
+
+#### 5.3.3 客户端停止
+
+```bash
+# 消息分发器提示客户端不可用
+MessagePipeDistributor     : To the client: 192.168.1.22::5201, exception when sending a message, Status Code: UNAVAILABLE
+MessagePipeDistributor     : The client is unavailable, and the cached channel is deleted.
+# 调用ExceptionHandler输出错误信息
+ConsoleExceptionHandler    : Encountered once while processing [35888d44-686c-47f9-bb88-915c3212c742] message.
+```
+
+
+
 ## 6. 常见问题
 
 ### 6.1 Docker部署无法注册到服务端
 
-### 6.2 Nacos方式依赖问题
+该问题是因为`Docker`网络环境导致的，`Docker`容器是相互独立的，如果`客户端`、`服务端`都是通过容器的方式部署，则需要有以下几点需要注意：
+
+1. Linux系统可以直接使用`docker0`网卡的`172.17.0.1`IP地址来通信，不过容器需要将端口号映射绑定到本机才可以，如下所示：
+
+   ```bash
+   # 部署客户端
+   docker run --name api-boot-sample-message-pipe-client -p 5201:5201 -d api-boot-sample-message-pipe-client:latest
+   # 部署服务端
+   docker run --name api-boot-sample-message-pipe-server -p 5200:5200 -d api-boot-sample-message-pipe-server:latest
+   ```
+
+   :::tip
+
+   上面命令指示演示，客户端、服务端`latest`版本并未上传到Docker仓库。
+
+   值得注意的是，如果通过上面方式部署，客户端配置注册服务端的IP地址要为：`server-address: 172.17.0.1`，也仅限Linux系统。
+
+   :::
+
+2. 需要将客户端、服务端的端口号（默认：5200/5201）开放出来，否则受容器保护，无法访问
+
+3. 简单粗暴的解决方式创建客户端、服务端容器时使用主机网络环境，`--network host`。
