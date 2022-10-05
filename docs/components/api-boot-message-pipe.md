@@ -418,7 +418,7 @@ public void onEvent(Event event) {
 
 :::info 服务事件
 
-对于`ServiceEvent`有兴趣可以查看下源码，该事件依赖于`ApplicationContext`发布，已解耦的方式处理客户端服务动态，事件类型目前有：
+对于`ServiceEvent`有兴趣可以查看下源码，该事件依赖于`ApplicationContext`发布，以解耦的方式处理客户端服务动态，事件类型目前有：
 
 - REGISTER：注册一个新的客户端服务，仅用于`GRPC`方式
 - HEART_BEAT：收到客户端发送的心跳，仅用于`GRPC`方式
