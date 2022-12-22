@@ -44,7 +44,7 @@ sidebar_position: 1
 ```xml
 <dependency>
   <groupId>org.minbox.framework</groupId>
-  <artifactId>api-boot-starter-message-pipe-server</artifactId>
+  <artifactId>api-boot-starter-message-pipe-client</artifactId>
 </dependency>
 ```
 
